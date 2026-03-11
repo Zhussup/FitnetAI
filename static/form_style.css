@@ -1,0 +1,112 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    height: 100vh;
+    width: 100vw;
+    background: #111;
+    background-image: radial-gradient(circle at -10% 50%, rgba(255, 120, 0, 0.4), transparent 60%), radial-gradient(circle at 110% 50%, rgba(255, 0, 0, 0.35), transparent 60%);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+    color: white;
+}
+
+
+/* ---------- HEADER ---------- */
+
+.top {
+    width: 100%;
+    padding: 30px 70px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.logo span {
+    color: red;
+}
+
+nav a {
+    color: white;
+    margin-left: 40px;
+    font-size: 16px;
+    text-decoration: none;
+}
+
+
+/* ---------- FORM BLOCK ---------- */
+
+.form-section {
+    width: 100%;
+    margin-top: 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 35px;
+    margin-bottom: 120px;
+}
+
+.field {
+    display: flex;
+    align-items: center;
+}
+
+.field input {
+    width: 350px;
+    height: 50px;
+    border-radius: 12px;
+    border: none;
+    outline: none;
+    background: white;
+}
+
+.field span {
+    margin-left: 25px;
+    color: #ccc;
+    font-size: 15px;
+}
+
+
+/* ---------- BUTTONS ---------- */
+
+.buttons {
+    width: 80%;
+    max-width: 1100px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.red-btn {
+    width: 45%;
+    height: 55px;
+    border-radius: 25px;
+    background: #e60000;
+    color: white;
+    font-size: 18px;
+    border: none;
+}
+
+.orange-btn {
+    width: 45%;
+    height: 55px;
+    border-radius: 25px;
+    background: transparent;
+    border: 2px solid #ff6a00;
+    color: #ff6a00;
+    font-size: 18px;
+}

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Выбор дней тренировок - FitnetAI</title>
+    <link rel="icon" type="image/jpeg" href="/static/logo.jpg">
+    <link rel="stylesheet" href="/static/theme.css">
+    <script src="/static/theme.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        header {
+            background-color: var(--bg-header);
+            border-bottom: 2px solid var(--accent-primary);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 18px;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .logo img {
+            width: 24px;
+            height: 24px;
+            border-radius: 3px;
+        }
+
+        nav {
+            display: flex;
+            gap: 30px;
+        }
+
+        nav a {
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        nav a:hover,
+        nav a.active {
+            color: var(--accent-primary);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: var(--bg-secondary);
+            border: 2px solid var(--accent-primary);
+            border-radius: 12px;
+            padding: 30px;
+        }
+
+        h1 {
+            color: var(--accent-primary);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+
+        .days-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .day-card {
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .day-card:hover {
+            border-color: var(--accent-primary);
+            transform: translateY(-2px);
+        }
+
+        .day-card.selected {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+            color: white;
+        }
+
+        .day-card input[type="checkbox"] {
+            display: none;
+        }
+
+        .day-name {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .save-btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--accent-primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .save-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 59, 0, 0.4);
+        }
+
+        .message {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            display: none;
+        }
+
+        .message.success {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid #4CAF50;
+            color: #4CAF50;
+        }
+
+        .message.error {
+            background: rgba(255, 68, 68, 0.2);
+            border: 1px solid #ff4444;
+            color: #ff4444;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="/" class="logo">
+            <img src="/static/logo.jpg" alt="logo">
+            FitnetAI
+        </a>
+        <nav>
+            <a href="/">Главная</a>
+            <a href="/exercises">Упражнения</a>
+            <a href="/chat">Чат</a>
+            <a href="/dashboard">Профиль</a>
+            <a href="/history">История</a>
+            <a href="/training-schedule" class="active">Расписание</a>
+            <a href="/training-program">Программа</a>
+            <a href="/settings">Настройки</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h1>Выберите дни для тренировок</h1>
+            <p class="subtitle">Отметьте дни недели, когда вы можете тренироваться</p>
+            
+            <div class="days-grid">
+                <div class="day-card" onclick="toggleDay(0)">
+                    <div class="day-name">Понедельник</div>
+                    <input type="checkbox" id="day-0">
+                </div>
+                <div class="day-card" onclick="toggleDay(1)">
+                    <div class="day-name">Вторник</div>
+                    <input type="checkbox" id="day-1">
+                </div>
+                <div class="day-card" onclick="toggleDay(2)">
+                    <div class="day-name">Среда</div>
+                    <input type="checkbox" id="day-2">
+                </div>
+                <div class="day-card" onclick="toggleDay(3)">
+                    <div class="day-name">Четверг</div>
+                    <input type="checkbox" id="day-3">
+                </div>
+                <div class="day-card" onclick="toggleDay(4)">
+                    <div class="day-name">Пятница</div>
+                    <input type="checkbox" id="day-4">
+                </div>
+                <div class="day-card" onclick="toggleDay(5)">
+                    <div class="day-name">Суббота</div>
+                    <input type="checkbox" id="day-5">
+                </div>
+                <div class="day-card" onclick="toggleDay(6)">
+                    <div class="day-name">Воскресенье</div>
+                    <input type="checkbox" id="day-6">
+                </div>
+            </div>
+
+            <button class="save-btn" onclick="saveSchedule()">Сохранить расписание</button>
+            <div id="message" class="message"></div>
+        </div>
+    </div>
+
+    <script>
+        function toggleDay(dayIndex) {
+            const checkbox = document.getElementById(`day-${dayIndex}`);
+            const card = checkbox.closest('.day-card');
+            
+            checkbox.checked = !checkbox.checked;
+            if (checkbox.checked) {
+                card.classList.add('selected');
+            } else {
+                card.classList.remove('selected');
+            }
+        }
+
+        async function saveSchedule() {
+            const selectedDays = [];
+            for (let i = 0; i < 7; i++) {
+                if (document.getElementById(`day-${i}`).checked) {
+                    selectedDays.push(i);
+                }
+            }
+
+            if (selectedDays.length === 0) {
+                showMessage("Выберите хотя бы один день", "error");
+                return;
+            }
+
+            const token = localStorage.getItem("token");
+            if (!token) {
+                window.location.href = "/login";
+                return;
+            }
+
+            try {
+                const res = await fetch("/api/training-schedule", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ available_days: selectedDays })
+                });
+
+                const data = await res.json();
+                
+                if (res.ok) {
+                    showMessage("✓ Расписание сохранено!", "success");
+                    setTimeout(() => {
+                        window.location.href = "/training-program";
+                    }, 1500);
+                } else {
+                    showMessage("✗ " + (data.detail || "Ошибка"), "error");
+                }
+            } catch (e) {
+                showMessage("✗ Ошибка сети", "error");
+            }
+        }
+
+        function showMessage(text, type) {
+            const msgEl = document.getElementById("message");
+            msgEl.textContent = text;
+            msgEl.className = `message ${type}`;
+            msgEl.style.display = "block";
+            setTimeout(() => msgEl.style.display = "none", 3000);
+        }
+
+        // Load existing schedule
+        async function loadSchedule() {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                window.location.href = "/login";
+                return;
+            }
+
+            try {
+                const res = await fetch("/api/training-schedule", {
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.schedule && data.schedule.available_days) {
+                        data.schedule.available_days.forEach(day => {
+                            const checkbox = document.getElementById(`day-${day}`);
+                            const card = checkbox.closest('.day-card');
+                            checkbox.checked = true;
+                            card.classList.add('selected');
+                        });
+                    }
+                }
+            } catch (e) {
+                console.error("Error loading schedule:", e);
+            }
+        }
+
+        window.addEventListener("load", () => {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                window.location.href = "/login";
+                return;
+            }
+            loadSchedule();
+        });
+    </script>
+</body>
+</html>
+

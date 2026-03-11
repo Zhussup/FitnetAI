@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админка - FitnetAI</title>    <link rel="icon" type="image/jpeg" href="/static/logo.jpg">    <link rel="stylesheet" href="/static/theme.css">
+    <script src="/static/theme.js"></script>
+    <style>
+        :root {
+            color-scheme: dark;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+        header {
+            background: var(--bg-header);
+            border-bottom: 2px solid var(--accent-primary);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        header .logo { display: flex; align-items: center; gap: 10px; color: var(--text-primary); text-decoration: none; font-weight: 700; }
+        header .logo-square { width: 24px; height: 24px; background: var(--accent-primary); border-radius: 4px; overflow: hidden; display: grid; place-items: center; }
+        header button {
+            background: var(--accent-primary);
+            border: 1px solid var(--accent-primary);
+            color: white;
+            border-radius: 8px;
+            padding: 10px 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        header button:hover { background: var(--accent-secondary); }
+
+        .container {
+            max-width: 1100px;
+            margin: 24px auto;
+            padding: 0 16px 48px;
+        }
+        .card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+        }
+        h1 { margin: 0 0 12px; font-size: 24px; }
+        p.muted { color: var(--text-secondary); margin: 0 0 16px; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+        }
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+            position: sticky;
+            top: 0;
+            z-index: 5;
+        }
+        tr:nth-child(every) { background: var(--bg-primary); }
+        tr:hover td { background: var(--bg-hover); }
+        input.table-input {
+            width: 100%;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 6px 8px;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+        .actions {
+            display: flex;
+            gap: 6px;
+        }
+        .btn {
+            border: none;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn.save { background: var(--accent-primary); color: white; }
+        .btn.save:hover { background: var(--accent-secondary); }
+        .btn.delete { background: var(--bg-secondary); color: #f35; border: 1px solid #f35; }
+        .btn.delete:hover { background: #2f0f17; }
+        .message {
+            margin-top: 12px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            display: none;
+        }
+        .message.error { border-color: #ff4d4f; color: #ffb3b3; }
+        .message.success { border-color: #2ecc71; color: #b7f2cc; }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="/" class="logo">
+            <div class="logo-square"><img src="/static/logo.jpg" alt="logo" width="24" height="24" style="border-radius: 3px;"></div>
+            FitnetAI — Админ
+        </a>
+        <nav style="display:flex; gap:16px; align-items:center;">
+            <a href="/chat" style="color:var(--text-primary); text-decoration:none; font-weight:600;">Чат</a>
+            <a href="/exercises" style="color:var(--text-primary); text-decoration:none; font-weight:600;">Упражнения</a>
+            <button class="theme-toggle" onclick="toggleTheme()" style="background: transparent; border: 1px solid var(--accent-primary); color: var(--text-primary); padding: 8px 12px; border-radius: 8px; cursor: pointer; font-weight: 600;"><span id="themeText">Светлая тема</span></button>
+        </nav>
+        <button onclick="logout()">Выйти</button>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h1>Пользователи</h1>
+            <p class="muted">Редактируйте и удаляйте учетные записи. Изменения сохраняются сразу.</p>
+            <div id="message" class="message"></div>
+            <div style="overflow:auto; max-height: 70vh;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Email</th>
+                            <th>Пол</th>
+                            <th>Возраст</th>
+                            <th>Рост (см)</th>
+                            <th>Вес (кг)</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ADMIN_EMAIL = "admin.athletix@gmail.com";
+
+        function showMessage(text, type = "success") {
+            const box = document.getElementById("message");
+            box.textContent = text;
+            box.className = `message ${type}`;
+            box.style.display = "block";
+            setTimeout(() => box.style.display = "none", 3000);
+        }
+
+        function authHeaders() {
+            const token = localStorage.getItem("token");
+            return {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token || ""}`
+            };
+        }
+
+        async function loadUsers() {
+            try {
+                const res = await fetch("/api/admin/users", { headers: authHeaders() });
+                if (!res.ok) {
+                    throw new Error("Нет доступа, авторизуйтесь как админ");
+                }
+                const data = await res.json();
+                renderTable(data.users || []);
+            } catch (e) {
+                showMessage(e.message, "error");
+                setTimeout(() => window.location.href = "/login", 1200);
+            }
+        }
+
+        function renderTable(users) {
+            const tbody = document.getElementById("usersTable");
+            tbody.innerHTML = "";
+            users.forEach(u => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td>${u.email}</td>
+                    <td><input class="table-input" id="gender-${u.email}" value="${u.gender || ""}"></td>
+                    <td><input class="table-input" id="age-${u.email}" type="number" value="${u.age ?? ""}"></td>
+                    <td><input class="table-input" id="height-${u.email}" type="number" step="0.1" value="${u.height ?? ""}"></td>
+                    <td><input class="table-input" id="weight-${u.email}" type="number" step="0.1" value="${u.weight ?? ""}"></td>
+                    <td>
+                        <div class="actions">
+                            <button class="btn save" onclick="saveUser('${u.email}')">Сохранить</button>
+                            <button class="btn delete" onclick="deleteUser('${u.email}')">Удалить</button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function saveUser(email) {
+            const payload = {
+                email,
+                gender: document.getElementById(`gender-${email}`).value || null,
+                age: parseInt(document.getElementById(`age-${email}`).value || "0", 10) || null,
+                height: parseFloat(document.getElementById(`height-${email}`).value || "0") || null,
+                weight: parseFloat(document.getElementById(`weight-${email}`).value || "0") || null
+            };
+            try {
+                const res = await fetch(`/api/admin/users/${encodeURIComponent(email)}`, {
+                    method: "PUT",
+                    headers: authHeaders(),
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || "Ошибка сохранения");
+                showMessage("Сохранено");
+            } catch (e) {
+                showMessage(e.message, "error");
+            }
+        }
+
+        async function deleteUser(email) {
+            if (!confirm(`Удалить пользователя ${email}?`)) return;
+            try {
+                const res = await fetch(`/api/admin/users/${encodeURIComponent(email)}`, {
+                    method: "DELETE",
+                    headers: authHeaders()
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || "Ошибка удаления");
+                showMessage("Удалено");
+                await loadUsers();
+            } catch (e) {
+                showMessage(e.message, "error");
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem("token");
+            localStorage.removeItem("email");
+            localStorage.removeItem("selectedProgram");
+            window.location.href = "/login";
+        }
+
+        window.addEventListener("load", () => {
+            const email = localStorage.getItem("email");
+            if (email !== ADMIN_EMAIL) {
+                showMessage("Недостаточно прав, войдите как админ", "error");
+                setTimeout(() => window.location.href = "/login", 1200);
+                return;
+            }
+            loadUsers();
+        });
+    </script>
+</body>
+</html>
+

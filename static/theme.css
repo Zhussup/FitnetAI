@@ -1,0 +1,55 @@
+/* Global theme styles - to be included in all pages */
+
+:root {
+    /* Dark theme (default) */
+    --bg-primary: #0d0d0f;
+    --bg-secondary: rgba(26, 26, 26, 0.95);
+    --bg-header: #1a1a1a;
+    --text-primary: #ffffff;
+    --text-secondary: #cccccc;
+    --text-muted: #aaa;
+    --accent-primary: #ff3b00;
+    --accent-secondary: #ff6b35;
+    --border-color: rgba(255, 59, 0, 0.35);
+    --input-bg: #0c0c0f;
+    --card-bg: linear-gradient(145deg, #111116, #0c0c10);
+    --gradient-1: rgba(255, 107, 53, 0.08);
+    --gradient-2: rgba(255, 59, 0, 0.1);
+}
+
+body.light-theme {
+    /* Light theme */
+    --bg-primary: #f0f4f8;
+    --bg-secondary: rgba(255, 255, 255, 0.95);
+    --bg-header: #ffffff;
+    --text-primary: #1a1a1a;
+    --text-secondary: #333333;
+    --text-muted: #666666;
+    --accent-primary: #2563eb;
+    --accent-secondary: #3b82f6;
+    --border-color: rgba(37, 99, 235, 0.25);
+    --input-bg: #f9fafb;
+    --card-bg: linear-gradient(145deg, #ffffff, #f8f9fa);
+    --gradient-1: rgba(37, 99, 235, 0.05);
+    --gradient-2: rgba(59, 130, 246, 0.08);
+}
+
+.theme-toggle {
+    cursor: pointer;
+    padding: 8px 16px;
+    background: var(--accent-primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.theme-toggle:hover {
+    background: var(--accent-secondary);
+    transform: translateY(-2px);
+}

@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Программа тренировок - FitnetAI</title>
+    <link rel="icon" type="image/jpeg" href="/static/logo.jpg">
+    <link rel="stylesheet" href="/static/theme.css">
+    <script src="/static/theme.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        header {
+            background-color: var(--bg-header);
+            border-bottom: 2px solid var(--accent-primary);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 18px;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .logo img {
+            width: 24px;
+            height: 24px;
+            border-radius: 3px;
+        }
+
+        nav {
+            display: flex;
+            gap: 30px;
+        }
+
+        nav a {
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        nav a:hover,
+        nav a.active {
+            color: var(--accent-primary);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: var(--bg-secondary);
+            border: 2px solid var(--accent-primary);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: var(--accent-primary);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+
+        .program-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .program-table th,
+        .program-table td {
+            padding: 15px;
+            text-align: left;
+            border: 1px solid var(--border-color);
+        }
+
+        .program-table th {
+            background: var(--bg-primary);
+            color: var(--accent-primary);
+            font-weight: 600;
+        }
+
+        .program-table td {
+            background: var(--bg-primary);
+        }
+
+        .program-table tr:hover td {
+            background: var(--bg-hover);
+        }
+
+        .day-name {
+            font-weight: 600;
+            color: var(--accent-primary);
+        }
+
+        .exercise-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .exercise-list li {
+            padding: 5px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .exercise-list li:last-child {
+            border-bottom: none;
+        }
+
+        .exercise-list a {
+            color: #ff6b35;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .exercise-list a:hover {
+            text-decoration: underline;
+        }
+
+        .empty-day {
+            color: #666;
+            font-style: italic;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background: var(--accent-primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: var(--accent-secondary);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--accent-primary);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="/" class="logo">
+            <img src="/static/logo.jpg" alt="logo">
+            FitnetAI
+        </a>
+        <nav>
+            <a href="/">Главная</a>
+            <a href="/exercises">Упражнения</a>
+            <a href="/chat">Чат</a>
+            <a href="/dashboard">Профиль</a>
+            <a href="/history">История</a>
+            <a href="/training-schedule">Расписание</a>
+            <a href="/training-program" class="active">Программа</a>
+            <a href="/settings">Настройки</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h1>Программа тренировок</h1>
+            <p class="subtitle">Ваша персональная программа на неделю</p>
+            
+            <a href="/training-schedule" class="btn btn-secondary" style="margin-bottom: 20px;">Изменить расписание</a>
+
+            <table class="program-table">
+                <thead>
+                    <tr>
+                        <th>День недели</th>
+                        <th>Упражнения</th>
+                    </tr>
+                </thead>
+                <tbody id="programTable">
+                    <tr>
+                        <td colspan="2" style="text-align: center; color: #aaa;">Загрузка...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const days = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
+        const dayKeys = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+
+        async function loadProgram() {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                window.location.href = "/login";
+                return;
+            }
+
+            const goal = localStorage.getItem("selectedProgram") || "Сжигание Жира";
+
+            try {
+                const res = await fetch("/api/training-program", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ goal })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    document.getElementById("programTable").innerHTML = `
+                        <tr>
+                            <td colspan="2" style="text-align: center; color: #ff4444;">${data.detail || 'Ошибка загрузки программы'}</td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                const program = data.program || {};
+                const availableDays = data.available_days || [];
+
+                if (!availableDays.length) {
+                    document.getElementById("programTable").innerHTML = `
+                        <tr>
+                            <td colspan="2" style="text-align: center; color: #aaa;">
+                                Сначала выберите дни для тренировок на странице <a href="/training-schedule" style="color: #ff3b00;">Расписание</a>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                let tableHtml = '';
+                for (let i = 0; i < 7; i++) {
+                    const dayName = days[i];
+                    const dayKey = dayKeys[i];
+                    const isAvailable = availableDays.includes(i);
+                    const exercises = program[dayKey] || [];
+
+                    let cellHtml = '<span class="empty-day">Выходной</span>';
+                    if (isAvailable) {
+                        if (exercises.length > 0) {
+                            cellHtml = `<ul class="exercise-list">${exercises.map(ex => `<li><a href="${ex.gif}" target="_blank" rel="noopener noreferrer">${ex.title}</a></li>`).join('')}</ul>`;
+                        } else {
+                            cellHtml = '<span class="empty-day">Программа формируется...</span>';
+                        }
+                    }
+
+                    tableHtml += `
+                        <tr>
+                            <td class="day-name">${dayName}</td>
+                            <td>${cellHtml}</td>
+                        </tr>
+                    `;
+                }
+
+                document.getElementById("programTable").innerHTML = tableHtml;
+            } catch (e) {
+                console.error("Error loading program:", e);
+                document.getElementById("programTable").innerHTML = `
+                    <tr>
+                        <td colspan="2" style="text-align: center; color: #ff4444;">Ошибка загрузки программы</td>
+                    </tr>
+                `;
+            }
+        }
+
+        window.addEventListener("load", () => {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                window.location.href = "/login";
+                return;
+            }
+            loadProgram();
+        });
+    </script>
+</body>
+</html>
+

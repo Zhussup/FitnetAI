@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>История данных - FitnetAI</title>
+    <link rel="icon" type="image/jpeg" href="/static/logo.jpg">
+    <link rel="stylesheet" href="/static/theme.css">
+    <script src="/static/theme.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        /* ===== HEADER ===== */
+        .top-menu {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 40px;
+            background-color: var(--bg-header);
+            border-bottom: 2px solid var(--accent-primary);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            color: var(--text-primary);
+            font-size: 20px;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .logo img {
+            width: 25px;
+            height: 25px;
+            margin-right: 10px;
+            border-radius: 3px;
+        }
+
+        .top-menu nav {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .top-menu nav a {
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            position: relative;
+        }
+
+        .top-menu nav a:hover,
+        .top-menu nav a.active {
+            color: var(--accent-primary);
+        }
+
+        .top-menu nav a.active::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--accent-primary);
+            border-radius: 2px;
+        }
+
+        /* ===== CONTAINER ===== */
+        .container {
+            max-width: 1400px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        h1 {
+            color: var(--accent-primary);
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        /* ===== TABLE SECTION ===== */
+        .table-section {
+            background: var(--bg-secondary);
+            border: 2px solid var(--accent-primary);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: var(--bg-primary);
+            border-bottom: 2px solid var(--accent-primary);
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--accent-primary);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+        }
+
+        tbody tr:hover {
+            background: var(--bg-hover);
+            transition: background 0.3s;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* ===== COLUMN WIDTHS ===== */
+        .col-date { width: 10%; }
+        .col-time { width: 8%; }
+        .col-water { width: 9%; }
+        .col-protein { width: 9%; }
+        .col-kcal { width: 9%; }
+        .col-weight { width: 9%; }
+        .col-height { width: 9%; }
+        .col-bmi { width: 9%; }
+        .col-program { width: 14%; }
+        .col-status { width: 14%; }
+
+        /* ===== VALUE STYLING ===== */
+        .metric {
+            font-weight: 600;
+            color: var(--accent-primary);
+        }
+
+        .date-time {
+            color: var(--text-secondary);
+        }
+
+        .program-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: var(--badge-bg);
+            border: 1px solid var(--accent-primary);
+            border-radius: 6px;
+            font-size: 12px;
+            color: var(--accent-primary);
+            font-weight: 600;
+        }
+
+        /* ===== STATUS STYLING ===== */
+        .status-good {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #4ade80;
+            font-weight: 600;
+        }
+
+        .status-bad {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #ff6b6b;
+            font-weight: 600;
+        }
+
+        .status-icon {
+            font-size: 18px;
+        }
+
+        /* ===== EMPTY STATE ===== */
+        .empty-state {
+            padding: 60px 20px;
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        .empty-state h2 {
+            color: var(--accent-primary);
+            margin-bottom: 10px;
+        }
+
+        /* ===== CONTROLS ===== */
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex-grow: 1;
+            min-width: 250px;
+            padding: 10px 15px;
+            background: var(--input-bg);
+            border: 1px solid var(--accent-primary);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .search-box:focus {
+            outline: none;
+            box-shadow: 0 0 10px var(--shadow-accent);
+        }
+
+        .btn-refresh {
+            padding: 10px 20px;
+            background: var(--accent-primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-refresh:hover {
+            background: var(--accent-secondary);
+            transform: translateY(-2px);
+        }
+
+        .btn-export {
+            padding: 10px 20px;
+            background: #2d5a2d;
+            color: #90ee90;
+            border: 1px solid #4CAF50;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-export:hover {
+            background: #3a7a3a;
+            transform: translateY(-2px);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .top-menu {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px;
+            }
+
+            .top-menu nav {
+                width: 100%;
+                justify-content: center;
+                gap: 15px;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 8px 5px;
+            }
+
+            .col-date { width: 8%; }
+            .col-time { width: 8%; }
+            .col-water { width: 8%; }
+            .col-protein { width: 8%; }
+            .col-kcal { width: 8%; }
+            .col-weight { width: 8%; }
+            .col-height { width: 8%; }
+            .col-bmi { width: 8%; }
+            .col-program { width: 20%; }
+
+            .program-badge {
+                font-size: 10px;
+                padding: 2px 8px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="top-menu">
+    <a href="/" class="logo">
+        <img src="/static/logo.jpg" alt="logo">
+        AthletixAI
+    </a>
+
+    <nav>
+        <a href="/">Главная</a>
+        <a href="/exercises">Упражнения</a>
+        <a href="/chat">Чат</a>
+        <a href="/dashboard">Профиль</a>
+        <a href="/history" class="active">История</a>
+        <a href="/training-schedule">Расписание</a>
+        <a href="/training-program">Программа</a>
+        <a href="/settings">Настройки</a>
+    </nav>
+</header>
+
+<div class="container">
+
+    <h1>📊 История отправки данных</h1>
+
+    <div class="controls">
+        <input type="text" id="searchBox" class="search-box" placeholder="Поиск по программе или дате...">
+        <button class="btn-refresh" onclick="loadHistory()">Обновить</button>
+        <button class="btn-export" onclick="exportToCSV()">Скачать CSV</button>
+    </div>
+
+    <div class="table-section">
+        <table id="historyTable">
+            <thead>
+                <tr>
+                    <th class="col-date">Дата</th>
+                    <th class="col-time">Время</th>
+                    <th class="col-water">Вода (мл)</th>
+                    <th class="col-protein">Белок (г)</th>
+                    <th class="col-kcal">Ккал</th>
+                    <th class="col-weight">Вес (кг)</th>
+                    <th class="col-height">Рост (см)</th>
+                    <th class="col-bmi">BMI</th>
+                    <th class="col-program">Программа</th>
+                    <th class="col-status">Статус</th>
+                </tr>
+            </thead>
+            <tbody id="historyBody">
+                <tr>
+                    <td colspan="10" style="text-align: center; padding: 20px;">Загрузка...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<script>
+    // ===== PROGRAM NORMS ===== 
+    const programNorms = {
+        'Сжигание Жира': {
+            minProtein: 100,      // минимум белка в граммах
+            minWater: 2000,       // минимум воды в мл
+            maxCalories: 2300,    // максимум ккал
+            description: 'Жир'
+        },
+        'Набор Мышц': {
+            minProtein: 150,      // минимум белка для роста мышц
+            minWater: 2500,       // больше воды для восстановления
+            minCalories: 2500,    // минимум ккал для профицита
+            maxCalories: 3500,    // максимум ккал
+            description: 'Мышцы'
+        },
+        'Рекомпозиция Тела': {
+            minProtein: 130,      // приличный белок
+            minWater: 2200,       // средняя вода
+            minCalories: 2000,    // низкие ккал
+            maxCalories: 2500,    // средние ккал
+            description: 'Баланс'
+        }
+    };
+
+    // ===== EVALUATE RESULT ===== 
+    function evaluateResult(record) {
+        const program = record.program_name || 'Сжигание Жира';
+        const norms = programNorms[program] || programNorms['Сжигание Жира'];
+        
+        let status = '';
+        let cssClass = '';
+        
+        // Проверка белка
+        if (record.protein_g < norms.minProtein) {
+            status = `↓ Недобор белка (${record.protein_g}/${norms.minProtein}г)`;
+            cssClass = 'status-bad';
+        }
+        // Проверка воды
+        else if (record.water_ml < norms.minWater) {
+            status = `↓ Недобор воды (${record.water_ml}/${norms.minWater}мл)`;
+            cssClass = 'status-bad';
+        }
+        // Проверка ккал в зависимости от программы
+        else if (program === 'Сжигание Жира') {
+            if (record.calories_kcal > norms.maxCalories) {
+                status = `↓ Перебор ккал (${record.calories_kcal}/${norms.maxCalories})`;
+                cssClass = 'status-bad';
+            } else {
+                status = `↑ Отлично!`;
+                cssClass = 'status-good';
+            }
+        }
+        else if (program === 'Набор Мышц') {
+            if (record.calories_kcal < norms.minCalories) {
+                status = `↓ Недобор ккал (${record.calories_kcal}/${norms.minCalories})`;
+                cssClass = 'status-bad';
+            } else if (record.calories_kcal > norms.maxCalories) {
+                status = `↓ Перебор ккал (${record.calories_kcal}/${norms.maxCalories})`;
+                cssClass = 'status-bad';
+            } else {
+                status = `↑ Отлично!`;
+                cssClass = 'status-good';
+            }
+        }
+        else if (program === 'Рекомпозиция Тела') {
+            if (record.calories_kcal < norms.minCalories) {
+                status = `↓ Недобор ккал (${record.calories_kcal}/${norms.minCalories})`;
+                cssClass = 'status-bad';
+            } else if (record.calories_kcal > norms.maxCalories) {
+                status = `↓ Перебор ккал (${record.calories_kcal}/${norms.maxCalories})`;
+                cssClass = 'status-bad';
+            } else {
+                status = `↑ Отлично!`;
+                cssClass = 'status-good';
+            }
+        }
+        else {
+            status = `↑ Отлично!`;
+            cssClass = 'status-good';
+        }
+        
+        return {
+            html: `<div class="${cssClass}"><span class="status-icon">${cssClass.includes('good') ? '✓' : '✗'}</span>${status}</div>`,
+            cssClass: cssClass
+        };
+    }
+
+    // ===== LOAD HISTORY ===== 
+    async function loadHistory() {
+        const email = localStorage.getItem("email");
+        
+        if (!email) {
+            window.location.href = "/login";
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/history?email=${email}`);
+            
+            if (!response.ok) {
+                throw new Error("Failed to load history");
+            }
+
+            const data = await response.json();
+            const historyBody = document.getElementById("historyBody");
+
+            if (!data.history || data.history.length === 0) {
+                historyBody.innerHTML = `
+                    <tr>
+                        <td colspan="10" style="text-align: center; padding: 40px; color: #888;">
+                            <h2 style="color: #ff3b00; margin-bottom: 10px;">Нет данных</h2>
+                            <p>Вы ещё не сохранили никаких данных. Перейдите на <a href="/dashboard" style="color: #ff3b00; text-decoration: underline;">дашбоард</a> и сохраните свои метрики!</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            historyBody.innerHTML = data.history.map(record => {
+                const evaluation = evaluateResult(record);
+                return `
+                <tr>
+                    <td class="col-date">${record.date}</td>
+                    <td class="col-time">${record.time}</td>
+                    <td class="col-water"><span class="metric">${record.water_ml}</span></td>
+                    <td class="col-protein"><span class="metric">${record.protein_g}</span></td>
+                    <td class="col-kcal"><span class="metric">${record.calories_kcal}</span></td>
+                    <td class="col-weight"><span class="metric">${record.weight.toFixed(1)}</span></td>
+                    <td class="col-height"><span class="metric">${record.height.toFixed(1)}</span></td>
+                    <td class="col-bmi"><span class="metric">${record.bmi.toFixed(1)}</span></td>
+                    <td class="col-program">
+                        <span class="program-badge">${record.program_name || 'N/A'}</span>
+                    </td>
+                    <td class="col-status">${evaluation.html}</td>
+                </tr>
+            `}).join('');
+
+        } catch (error) {
+            console.error("Error loading history:", error);
+            document.getElementById("historyBody").innerHTML = `
+                <tr>
+                    <td colspan="10" style="text-align: center; padding: 20px; color: #ff4444;">
+                        Ошибка загрузки: ${error.message}
+                    </td>
+                </tr>
+            `;
+        }
+    }
+
+    // ===== SEARCH ===== 
+    function filterHistory() {
+        const searchText = document.getElementById("searchBox").value.toLowerCase();
+        const rows = document.getElementById("historyBody").querySelectorAll("tr");
+
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(searchText) ? "" : "none";
+        });
+    }
+
+    // ===== EXPORT TO CSV ===== 
+    async function exportToCSV() {
+        const email = localStorage.getItem("email");
+        
+        try {
+            const response = await fetch(`/api/history?email=${email}`);
+            const data = await response.json();
+
+            if (!data.history || data.history.length === 0) {
+                alert("Нет данных для экспорта");
+                return;
+            }
+
+            let csv = "Дата,Время,Вода (мл),Белок (г),Ккал,Вес (кг),Рост (см),BMI,Программа\n";
+
+            data.history.forEach(record => {
+                csv += `"${record.date}","${record.time}",${record.water_ml},${record.protein_g},${record.calories_kcal},${record.weight.toFixed(1)},${record.height.toFixed(1)},${record.bmi.toFixed(1)},"${record.program_name}"\n`;
+            });
+
+            // Create and download file
+            const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", `history_${email}_${new Date().getTime()}.csv`);
+            link.style.visibility = "hidden";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+        } catch (error) {
+            console.error("Error exporting CSV:", error);
+            alert("Ошибка при экспорте: " + error.message);
+        }
+    }
+
+    // ===== EVENT LISTENERS ===== 
+    document.getElementById("searchBox").addEventListener("input", filterHistory);
+
+    // ===== INITIALIZATION ===== 
+    window.addEventListener("load", loadHistory);
+</script>
+
+</body>
+
+</html>

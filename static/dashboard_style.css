@@ -1,0 +1,140 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    color: #fff;
+    background: #0e0e0e;
+    background-image: radial-gradient(circle at -10% 50%, rgba(255, 150, 60, 0.4), transparent 60%), radial-gradient(circle at 110% 50%, rgba(180, 0, 0, 0.4), transparent 60%);
+}
+
+.top-menu {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px 40px;
+    align-items: center;
+}
+
+.logo {
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.logo .sq {
+    background: #ff1c1c;
+    width: 18px;
+    height: 18px;
+    display: inline-block;
+    margin-right: 8px;
+    border-radius: 4px;
+}
+
+nav a {
+    margin: 0 20px;
+    color: #fff;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+.dropdown {
+    display: inline-block;
+}
+
+.drop-btn {
+    background: none;
+    color: white;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.drop-content {
+    display: none;
+    position: absolute;
+    background: #222;
+    padding: 10px;
+    border-radius: 6px;
+}
+
+.dropdown:hover .drop-content {
+    display: block;
+}
+
+.drop-content a {
+    display: block;
+    padding: 6px 10px;
+    color: white;
+    text-decoration: none;
+}
+
+.container {
+    width: 90%;
+    margin: auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    margin-top: 40px;
+    gap: 30px;
+}
+
+.program-card {
+    background: rgba(255, 80, 0, 0.1);
+    border: 2px solid #ff6d2d;
+    padding: 25px;
+    border-radius: 14px;
+}
+
+.bmi-card {
+    background: rgba(120, 0, 0, 0.5);
+    padding: 25px;
+    border-radius: 16px;
+}
+
+.input-row {
+    margin: 15px 0;
+}
+
+.input-box {
+    background: #222;
+    padding: 12px;
+    border-radius: 8px;
+}
+
+.input-box button {
+    background: #ff3d2d;
+    border: none;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.bmi-number {
+    font-size: 44px;
+    font-weight: 700;
+}
+
+.status {
+    padding: 6px 10px;
+    background: green;
+    border-radius: 5px;
+}
+
+.metrics {
+    grid-column: span 2;
+    display: flex;
+    justify-content: space-between;
+}
+
+.metric-box {
+    background: #fff1;
+    padding: 20px;
+    width: 30%;
+    border-radius: 12px;
+}
+
+.metric-controls button {
+    background: #ff3d2d;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 6px;
+    color: #fff;
+    cursor: pointer;
+}

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Упражнения - FitnetAI</title>
+    <link rel="icon" type="image/jpeg" href="/static/logo.jpg">
+    <link rel="stylesheet" href="/static/theme.css">
+    <script src="/static/theme.js"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        header {
+            background: var(--bg-header);
+            border-bottom: 2px solid var(--accent-primary);
+            padding: 15px 24px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .logo { display: flex; align-items: center; gap: 10px; color: var(--text-primary); text-decoration: none; font-weight: 700; font-size: 18px; }
+        .logo-square { width: 24px; height: 24px; background: var(--accent-primary); border-radius: 4px; overflow: hidden; display: grid; place-items: center; }
+        nav { display: flex; gap: 18px; margin-left: auto; }
+        nav a { color: var(--text-primary); text-decoration: none; font-weight: 600; font-size: 14px; }
+        nav a:hover { color: var(--accent-secondary); }
+
+        .container {
+            width: 100%;
+            max-width: 1100px;
+            margin: 28px auto;
+            padding: 0 16px 48px;
+        }
+        h1 { margin: 0 0 12px; font-size: 28px; }
+        p.subtitle { margin: 0 0 20px; color: var(--text-secondary); }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+        }
+        .card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 18px;
+            cursor: pointer;
+            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 10px 30px var(--gradient-2);
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-primary);
+            box-shadow: 0 12px 36px var(--gradient-1);
+        }
+        .card h3 { margin: 0 0 8px; font-size: 18px; }
+        .card small { color: var(--text-secondary); }
+
+        .details {
+            margin-top: 26px;
+            padding: 18px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+        }
+        .details h2 { margin: 0 0 10px; }
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 14px;
+        }
+        .exercise-card {
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            box-shadow: 0 8px 28px var(--gradient-2);
+        }
+        .exercise-card h4 { margin: 0; }
+        .exercise-card p { margin: 0; color: var(--text-secondary); font-size: 14px; line-height: 1.4; }
+        .exercise-card img {
+            width: 100%;
+            border-radius: 10px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            object-fit: cover;
+        }
+
+        @media (max-width: 640px) {
+            nav { flex-wrap: wrap; }
+            header { gap: 12px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="/" class="logo">
+            <div class="logo-square"><img src="/static/logo.jpg" alt="logo" width="24" height="24" style="border-radius: 3px;"></div>
+            FitnetAI
+        </a>
+        <nav>
+            <a href="/">Главная</a>
+            <a href="/#programs">Программы</a>
+            <a href="/exercises">Упражнения</a>
+            <a href="/chat">Чат</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h1>Подборка упражнений</h1>
+        <p class="subtitle">Выберите группу мышц, чтобы увидеть 3 упражнения с описанием и GIF.</p>
+
+        <div class="grid" id="groupsGrid"></div>
+
+        <div class="details" id="details" style="display:none;">
+            <h2 id="detailsTitle"></h2>
+            <div class="details-grid" id="detailsGrid"></div>
+        </div>
+    </div>
+
+    <script>
+        const groups = [
+            { key: "chest", title: "Грудь", note: "Базовые и изолирующие движения для грудных мышц" },
+            { key: "legs", title: "Ноги", note: "Силовые и функциональные упражнения для ног" },
+            { key: "shoulders", title: "Плечи", note: "Дельты и стабилизаторы плечевого пояса" },
+            { key: "abs", title: "Пресс", note: "Работа на core и стабилизацию" },
+            { key: "arms", title: "Руки", note: "Бицепс, трицепс и предплечья" },
+            { key: "back", title: "Спина", note: "Тяги и широчайшие" },
+        ];
+
+        // Гифки лежат в папке /exer/... (смонтировано в FastAPI)
+        // Используем фактические папки и имена файлов из проекта.
+        const exercisesByGroup = {
+    chest: [
+        { 
+            title: "Жим гантелей лежа в наклоне", 
+            desc: "Упражнение для верхней части грудных мышц, включает передние дельты и трицепс.", 
+            gif: "/exer/chest/gif1.gif" 
+        },
+        { 
+            title: "Жим штанги лежа", 
+            desc: "Базовое упражнение на общую массу груди, также работает трицепс и передняя дельта.", 
+            gif: "/exer/chest/gif2.gif" 
+        },
+        { 
+            title: "Разведения гантелей лёжа", 
+            desc: "Изоляция грудных, направлена на растяжку и сокращение мышц груди.", 
+            gif: "/exer/chest/gif3.gif" 
+        },
+    ],
+
+    legs: [
+        { 
+            title: "Ягодичный мостик со штангой", 
+            desc: "Основное упражнение для ягодичных, также включает заднюю поверхность бедра.", 
+            gif: "/exer/legs/gif1.gif" 
+        },
+        { 
+            title: "Мертвая тяга со штангой", 
+            desc: "Тренирует заднюю цепь: ягодичные, бицепс бедра, спину и корпус.", 
+            gif: "/exer/legs/gif2.gif" 
+        },
+        { 
+            title: "Подъем на икры со штангой стоя", 
+            desc: "Работает камбаловидная и икроножная мышцы, улучшает силу голени.", 
+            gif: "/exer/legs/gif3.gif" 
+        },
+    ],
+
+    shoulders: [
+        { 
+            title: "Жим стоя", 
+            desc: "Базовое движение для плеч: работает передняя и средняя дельта, подключается трицепс.", 
+            gif: "/exer/shoulders/frontdeltas.gif" 
+        },
+        { 
+            title: "Махи в стороны", 
+            desc: "Изоляция средней дельты, формирует ширину и округлость плеч.", 
+            gif: "/exer/shoulders/gif2.gif" 
+        },
+        { 
+            title: "Тяга к лицу", 
+            desc: "Развивает задние дельты и верхнюю часть трапеций, улучшает стабилизацию плеч.", 
+            gif: "/exer/shoulders/gif3.gif" 
+        },
+    ],
+
+    abs: [
+        { 
+            title: "Упражнение книжка", 
+            desc: "Одновременный подъём рук и ног, нагружает весь пресс, особенно верх и низ.", 
+            gif: "/exer/core/gif1.gif" 
+        },
+        { 
+            title: "Скручивания", 
+            desc: "Классическое упражнение на верхнюю часть прямой мышцы живота.", 
+            gif: "/exer/core/gif2.gif" 
+        },
+        { 
+            title: "Скручивания с касанием стоп", 
+            desc: "Работает нижний пресс и косвенно сгибатели бедра.", 
+            gif: "/exer/core/gif3.gif" 
+        },
+    ],
+
+    arms: [
+        { 
+            title: "Подъём на бицепс", 
+            desc: "Изоляция бицепса, концентрировано нагружает обе головки мышцы.", 
+            gif: "/exer/arms/gif1.gif" 
+        },
+        { 
+            title: "Сгибание запястий со штангой сидя", 
+            desc: "Упражнение на предплечья (мышцы-сгибатели кисти).", 
+            gif: "/exer/arms/gif2.gif" 
+        },
+        { 
+            title: "Жим штанги узким хватом", 
+            desc: "Базовое упражнение на трицепс, акцент на длинную и латеральную головки.", 
+            gif: "/exer/arms/gif3.gif" 
+        },
+    ],
+
+    back: [
+        { 
+            title: "Гиперэкстензия с гантелей", 
+            desc: "Укрепляет разгибатели спины, ягодичные и частично заднюю поверхность бедра.", 
+            gif: "/exer/back/gif1.gif" 
+        },
+        { 
+            title: "Поднятия штанги на трапеции", 
+            desc: "Основная нагрузка на трапеции, особенно верхнюю часть.", 
+            gif: "/exer/back/gif2.gif" 
+        },
+        { 
+            title: "Тяга верхнего блока", 
+            desc: "Работает широчайшие, круглые мышцы и бицепс; альтернатива подтягиваниям.", 
+            gif: "/exer/back/gif3.gif" 
+        },
+    ],
+};
+
+
+        const grid = document.getElementById("groupsGrid");
+        const details = document.getElementById("details");
+        const detailsTitle = document.getElementById("detailsTitle");
+        const detailsGrid = document.getElementById("detailsGrid");
+
+        function renderGroups() {
+            grid.innerHTML = "";
+            groups.forEach(g => {
+                const card = document.createElement("div");
+                card.className = "card";
+                card.innerHTML = `<h3>${g.title}</h3><small>${g.note}</small>`;
+                card.onclick = () => openGroup(g.key, g.title);
+                grid.appendChild(card);
+            });
+        }
+
+        function openGroup(key, title) {
+            const items = exercisesByGroup[key] || [];
+            detailsTitle.textContent = title;
+            detailsGrid.innerHTML = "";
+            items.forEach(ex => {
+                const el = document.createElement("div");
+                el.className = "exercise-card";
+                el.innerHTML = `
+                    <h4>${ex.title}</h4>
+                    <p>${ex.desc}</p>
+                    <img src="${ex.gif}" alt="${ex.title}">
+                `;
+                detailsGrid.appendChild(el);
+            });
+            details.style.display = "block";
+            details.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+
+        renderGroups();
+    </script>
+</body>
+</html>
+
